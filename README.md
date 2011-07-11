@@ -32,4 +32,10 @@ The width of the inner rectangle is determined by the boundary points to the lef
 Dynamic shapes
 --------------
 
-Lset-opt allows one to update the topology of the grid by specifying a proposed change in p, dp.
+Lset-opt allows one to update the topology of the grid by specifying a proposed change in p, dp. P is updated indirectly by changing phi, which guarantees that p is still based on a two-material topology. At the same time, this will of course cause considerable difference between the new p and p + dp, which the user should expect.
+
+
+Island creation
+---------------
+
+The definition of p allows for the creation of arbitrarily small "islands" of material. Although, numerous arbitrarily thin islands are possible, lset-opt only allows islands of one-grid point to be created. The creation of possibly multiple islands occurs automatically when updating p, although this feature can also be turned off.
