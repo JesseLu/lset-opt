@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{amsmath}
+\title{Theory for \texttt{lset-opt} package}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Definitions}
+\begin{description}
+    \item[grid] A two-dimensional regularly-spaced $m \times n$ set of points.
+    \item[$\phi$, $\phi_i$, or $\phi(x,y)$] Level-set function defined on grid. The zero-crossing of $\phi$ defines the contour of the shapes on the grid.
+\end{description}
+
+\section{Initialization}
+Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is computed in the following way:
+\begin{enumerate}
+    \item If any element of $\hat{\phi}$, $\hat{\phi_i}$, is exactly equal to 0, then let $\hat{\phi}_i = \epsilon$ where $\epsilon$ is the smallest positive number available.
+    \item For all $\hat{\phi}_i$ not adjacent to a boundary point, fix the corresponding $\phi_i$ as 
+    \begin{equation}
+        \phi_i = \text{sign}(\hat{\phi}_i) = 
+        \begin{cases}
+            -1& \hat{\phi}_i < 0, \\
+            +1&  \hat{\phi}_i > 0.
+        \end{cases}
+    \end{equation}
+    \item To determine the remaining $\phi_i$, solve the following:
+    \begin{align}
+        \text{minimize} \quad & \| D \phi \|^2 \\
+        \text{subject to} \quad & A \phi = 0,
+    \end{align}
+    where
+\end{enumerate}
+\section{Conversion to fractional-filling}
+\section{Topology update}
+\end{document}
