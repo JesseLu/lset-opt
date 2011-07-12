@@ -1,14 +1,17 @@
 \documentclass{article}
 \usepackage{amsmath}
 \title{Theory for \texttt{lset-opt} package}
+\author{Jesse Lu, \texttt{jesselu@stanford.edu}}
 \begin{document}
 \maketitle
 \tableofcontents
 
 \section{Definitions}
 \begin{description}
-    \item[grid] A two-dimensional regularly-spaced $m \times n$ set of points.
-    \item[$\phi$, $\phi_i$, or $\phi(x,y)$] Level-set function defined on grid. The zero-crossing of $\phi$ defines the contour of the shapes on the grid.
+    \item[grid] A two-dimensional $m \times n$ regularly-spaced set of points. The grid spacing is 1 in both $x$ and $y$ directions.
+    \item[cell] A box with length and height equal to 1, centered at a grid point.
+    \item[$\phi$] Level-set function defined on grid. The zero-crossing of $\phi$ defines the contour of the shapes on the grid.
+    \item[$p$] Fractional-filling function. Values of $p$ range from -1 to 1 depending on the relative volume of each material found in its cell.
 \end{description}
 
 \section{Initialization}
@@ -19,8 +22,8 @@ Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is comp
     \begin{equation}
         \phi_i = \text{sign}(\hat{\phi}_i) = 
         \begin{cases}
-            -1& \hat{\phi}_i < 0, \\
-            +1&  \hat{\phi}_i > 0.
+            -1& \text{if } \hat{\phi}_i < 0, \\
+            +1& \text{if } \hat{\phi}_i > 0.
         \end{cases}
     \end{equation}
     \item To determine the remaining $\phi_i$, solve the following:
@@ -28,8 +31,92 @@ Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is comp
         \text{minimize} \quad & \| D \phi \|^2 \\
         \text{subject to} \quad & A \phi = 0,
     \end{align}
-    where
+    where $D = [D_x \quad D_y]$, $D_x$ and $D_y$ being the difference matrices in the horizontal and vertical directions respectively. Also, $A$ is a matrix which fixes the boundary points by forcing the ratio of the two adjacent values of $\phi_i$ to remain the same.
 \end{enumerate}
+
 \section{Conversion to fractional-filling}
+The fractional-filling, $p$, of each cell is calculated in the following way,
+\begin{equation}
+    p_0 = \text{sign}(\phi_0)  (\gamma_1 + \gamma_2)(\gamma_3 + \gamma_4),
+\end{equation}
+where the subscript 0 refers to the value at the current grid point, and the subscripts 1, 2, 3, and 4 refer to values to the left, right, up, and down of the current grid point. 
+
+The values of $\gamma$ are determined by
+\begin{equation}
+    \gamma_i = 
+    \begin{cases}
+        \frac{\phi_0}{\phi_0 - \phi_i} & 
+            \text{if } |\phi_0| < |\phi_i| \text{ and } 
+            \text{sign}(\phi_0) \ne \text{sign}(\phi_i), \\
+        0.5 & \text{otherwise}.
+    \end{cases}
+\end{equation}
+for $i = 1,2,3,4$.
+
 \section{Topology update}
+The topology defined by $\phi$ can be dynamically updated by specifying a desired change in $p$, $\Delta \hat{p}$. A realizable change in $p$, $\Delta p$, is then computed by first finding the matrix $\partial p / \partial \phi$, 
+\begin{equation}
+    \frac{\partial p}{\partial \phi} = 
+    \frac{\partial p}{\partial \gamma} \frac{\partial \gamma}{\partial \phi},
+\end{equation}
+where
+\begin{equation}
+    \frac{\partial p_0}{\partial \gamma_i} = 
+    \begin{cases}
+        \gamma_3 + \gamma_4 & \text{for $i = 1,2$,} \\
+        \gamma_1 + \gamma_2 & \text{for $i = 3,4$.} 
+    \end{cases}
+\end{equation}
+and for $i = 1,2$
+\begin{equation}
+    \frac{\partial \gamma_i}{\partial \phi_0} = 
+    \begin{cases}
+        \frac{-\phi_i}{(\phi_0 - \phi_i)^2} & 
+            \text{if } |\phi_0| < |\phi_i| \text{ and } 
+            \text{sign}(\phi_0) \ne \text{sign}(\phi_i), \\
+        0 & \text{otherwise.}
+    \end{cases}
+\end{equation}
+\begin{equation}
+    \frac{\partial \gamma_i}{\partial \phi_i} = 
+    \begin{cases}
+        \frac{-\phi_0}{(\phi_0 - \phi_i)^2} & 
+            \text{if } |\phi_0| < |\phi_i| \text{ and } 
+            \text{sign}(\phi_0) \ne \text{sign}(\phi_i), \\
+        0 & \text{otherwise.}
+    \end{cases}
+\end{equation}
+and for $i = 3,4$
+\begin{equation}
+    \frac{\partial \gamma_i}{\partial \phi_0} = 
+    \begin{cases}
+        \frac{-\phi_i}{(\phi_0 - \phi_i)^2} & 
+            \text{if } |\phi_0| \le |\phi_i| \text{ and } 
+            \text{sign}(\phi_0) \ne \text{sign}(\phi_i), \\
+        0 & \text{otherwise.}
+    \end{cases}
+\end{equation}
+\begin{equation}
+    \frac{\partial \gamma_i}{\partial \phi_i} = 
+    \begin{cases}
+        \frac{-\phi_0}{(\phi_0 - \phi_i)^2} & 
+            \text{if } |\phi_0| \le |\phi_i| \text{ and } 
+            \text{sign}(\phi_0) \ne \text{sign}(\phi_i), \\
+        0 & \text{otherwise.}
+    \end{cases}
+\end{equation}
+
+Once we have $\partial p / \partial \phi$ then we solve the following for $\Delta \phi$,
+\begin{align}
+    \text{minimize} \quad & \| \Delta \phi \|^2 \\
+    \text{subject to} \quad & \Delta \hat{p} = 
+        \frac{\partial p}{\partial \phi} \Delta \phi.
+\end{align}
+
+$p + \Delta p$ is then given by converting $\phi + \Delta\phi$ to fractional-filling. In general, there will be a large discrepancy between $p + \Delta p$ and $p + \Delta \hat{p}$ because only certain fractional-fillings correspond to valid topologies. However, for 
+\begin{equation}
+    \lim_{\|\Delta\hat{p}\| \to 0} \|\Delta p - \Delta\hat{p}\| = 0
+\end{equation}
+if $\Delta\hat{p} = 0$ wherever $p = -1, +1$. 
+    
 \end{document}
