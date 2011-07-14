@@ -37,7 +37,7 @@ Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is comp
 \section{Conversion to fractional-filling}
 The fractional-filling, $p$, of each cell is calculated in the following way,
 \begin{equation}
-    p_0 = \text{sign}(\phi_0)  (\gamma_1 + \gamma_2)(\gamma_3 + \gamma_4),
+    p_0 = \text{sign}(\phi_0)  (-1 + 2(\gamma_1 + \gamma_2)(\gamma_3 + \gamma_4)),
 \end{equation}
 where the subscript 0 refers to the value at the current grid point, and the subscripts 1, 2, 3, and 4 refer to values to the left, right, up, and down of the current grid point. 
 
@@ -63,8 +63,8 @@ where
 \begin{equation}
     \frac{\partial p_0}{\partial \gamma_i} = 
     \begin{cases}
-        \gamma_3 + \gamma_4 & \text{for $i = 1,2$,} \\
-        \gamma_1 + \gamma_2 & \text{for $i = 3,4$.} 
+        2\text{sign}(\phi)(\gamma_3 + \gamma_4) & \text{for $i = 1,2$,} \\
+        2\text{sign}(\phi)(\gamma_1 + \gamma_2) & \text{for $i = 3,4$.} 
     \end{cases}
 \end{equation}
 and for $i = 1,2$
@@ -120,6 +120,8 @@ $p + \Delta p$ is then given by converting $\phi + \Delta\phi$ to fractional-fil
 if $\Delta\hat{p} = 0$ wherever $p = -1, +1$. 
 
 \section{Island nucleation}
-When performing a topological update, the nucleation of islands can be performed. 
-    
+When performing a topological update, the nucleation of islands can be performed. An island can be formed where $\phi_{0,1,2,3,4}$ all equal either -1 or +1, and where $\Delta\hat{p}_0$ is of opposite sign. In this case,
+\begin{equation}
+\phi_0 = \frac{\sqrt{\Delta p}}{\sqrt{\Delta p} - 2\sqrt{2}} \phi_i.
+\end{equation}    
 \end{document}
