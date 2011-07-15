@@ -14,7 +14,7 @@
     \item[$p$] Fractional-filling function. Values of $p$ range from -1 to 1 depending on the relative volume of each material found in its cell.
 \end{description}
 
-\section{Initialization}
+\section{Regularization}
 Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is computed in the following way:
 \begin{enumerate}
     \item If any element of $\hat{\phi}$, $\hat{\phi_i}$, is exactly equal to 0, then let $\hat{\phi}_i = \epsilon$ where $\epsilon$ is the smallest positive number available.
@@ -28,10 +28,10 @@ Given a candidate level-set function, $\hat{\phi}$, a regularized $\phi$ is comp
     \end{equation}
     \item To determine the remaining $\phi_i$, solve the following:
     \begin{align}
-        \text{minimize} \quad & \| D \phi \|^2 \\
+        \text{minimize} \quad & \| \phi - \text{sign}(\hat{\phi})\|^2 \\
         \text{subject to} \quad & A \phi = 0,
     \end{align}
-    where $D = [D_x \quad D_y]$, $D_x$ and $D_y$ being the difference matrices in the horizontal and vertical directions respectively. Also, $A$ is a matrix which fixes the boundary points by forcing the ratio of the two adjacent values of $\phi_i$ to remain the same.
+    where $A$ is a matrix which fixes the boundary points by forcing the ratio of the two adjacent values of $\phi_i$ to remain the same. The motivation behind the minimization objective is simply to keep values of phi from being unnecessarily small or large.
 \end{enumerate}
 
 \section{Conversion to fractional-filling}

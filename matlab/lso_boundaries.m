@@ -1,6 +1,20 @@
 function [x, y] = lso_boundaries(phi)
+% [X, Y] = LSO_BOUNDARIES(PHI)
+% 
+% Description
+%     Compute a list of boundary points (X, Y) from the level-set function PHI.
+% 
+% Inputs
+%     PHI: 2d array (level-set function).
+% 
+% Outputs
+%     X, Y: Vectors.
+%         The elements of X and Y denote the location of the boundary points
+%         implicitly described by PHI. The order of the points is unique in 
+%         the sense that any level-set functions describing the same boundary 
+%         points will produce identically ordered (X, Y).
 
-dims = size(phi);
+dims = size(phi); % Size of grid.
 
 % Horizontal and vertical borders.
 adj_right = cat(1, sign(phi(1:end-1,:)) ~= sign(phi(2:end,:)), ...

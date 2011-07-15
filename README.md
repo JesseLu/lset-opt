@@ -5,10 +5,10 @@ Lset-opt tracks the contours of shapes using a custom 2D level-set method. The l
 The primary functionality of lset-opt is the ability to update the contours based on a desired change in p. This is accomplished by updating phi (the level-set function) to reflect the changes in p which are near the edge of shapes. The ability to generate new shapes (e.g. small islands or holes) is included as well.
 
 
-Initialization
+Regularization
 --------------
 
-Phi, the level-set function, is initialized simply by specifying a level-set function which defines the shape boundary on its zero level-set (where it crosses zero). Critically, initialization is guaranteed to preserve all shape boundaries; phi is only smoothed-out in an attempt to avoid numerical errors. Therefore, phi can be reinitialized with arbitrary frequency, although back-to-back initializations produce identical phi as that produced by a single initialization.
+Phi, the level-set function, is regularized simply by specifying a level-set function which defines the shape boundary on its zero level-set (where it crosses zero). Critically, regularization is guaranteed to preserve all shape boundaries; certain elements in phi are simply resized in an (amateurish) attempt to increase numerical accuracy. Phi can be regularized with arbitrary frequency, although back-to-back regularizations produce identical phi as that produced by a single regularization.
 
 A single exception occurs when a value of phi equals 0, in this case that value is set to the smallest positive number available. This is done so that every boundary point is always defined by exactly two values of phi.
 
