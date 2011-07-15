@@ -1,5 +1,5 @@
-function [phi, err] = lso_initialize(phi_hat)
-% PHI = LSO_INITIALIZE(PHI_HAT)
+function [phi, err] = lso_regularize(phi_hat)
+% PHI = LSO_REGULARIZE(PHI_HAT)
 % 
 % Description
 %     Given proposed level-set function PHI_HAT, produces a "regularized"
@@ -24,8 +24,9 @@ function [phi, err] = lso_initialize(phi_hat)
 %     phi_hat = rand(40, 30)-0.2;
 %     [phi, err] = lso_initialize(phi_hat);
 
+
 dims = size(phi_hat); % Size of the 2D grid.
-N = prod(dims);
+N = prod(dims); % Number of elements in the grid.
 
 
     % 
@@ -90,6 +91,7 @@ A = [my_eq(find(adj_right), 1); my_eq(find(adj_down), dims(1))];
 [x, v, solve_time] = la_quadeq(speye(size(S_on,1)), sign(S_on*phi_hat(:)), ...
     S_on*A', zeros(size(A,1), 1));
 
+% Form regularized phi.
 phi = reshape(phi(:) + S_on'*x, dims);
 
 
