@@ -63,15 +63,6 @@ my_eq = @(ind, shift) ... % Forms half of the matrix.
 A = [my_eq(find(adj_right), 1); my_eq(find(adj_down), dims(1))];
 
 % Solve for phi.
-% spy(S_on*A')
-% A*S_on'*S_on*phi_hat(:)
-% A*phi_hat(:)
-% S_on
-% imagesc(reshape(S_on'*S_on*phi_hat(:), dims)');
-% hold on; spy(adj_right);
-% phi_hat
-% adj_right
-
 [x, v, solve_time] = la_quadeq(S_on*D'*D*S_on', -S_on*D'*D*phi(:), ...
     S_on*A', zeros(size(A,1), 1));
 
