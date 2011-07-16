@@ -1,9 +1,11 @@
 Now...
 ======
 
-1.  Add lso_fracfill check to lso_regularize
-1.  Add lso_plot to lso_regularize example
-1.  Use custom solver for lso_regularize, deprecate lso_priv_quadeq
+1.  Work out theory on what the alternative solver actually does.
+1.  Document (and make pretty) the alternative solver.
+1.  Fire up the p update function
+1.  Make tests for the p update function
+1.  Gram the island nucleation function
 
 Next...
 =======

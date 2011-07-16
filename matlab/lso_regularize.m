@@ -92,8 +92,13 @@ my_eq = @(ind, shift) ... % Forms half of the matrix.
 A = [my_eq(find(adj_right), 1); my_eq(find(adj_down), dims(1))];
 
 % Solve for phi.
-[x, v, solve_time] = lso_priv_quadeq(speye(size(S_on,1)), ...
-    sign(S_on*phi_hat(:)), A*S_on', zeros(size(A,1), 1));
+% The following solves the problem:
+%     minimize ||x - b||^2
+%     subject to C' * x == d
+C = A * S_on';
+b = sign(S_on * phi_hat(:));
+d = zeros(size(A,1), 1);
+x = b - C' * ((C * C') \ (C * b - d));
 
 % Form regularized phi.
 phi = reshape(phi(:) + S_on'*x, dims);
