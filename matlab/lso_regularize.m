@@ -1,6 +1,6 @@
-function [phi, err] = lso_regularize(phi_hat)
-% PHI = LSO_REGULARIZE(PHI_HAT)
-% 
+function [phi, err_bnd, err_p] = lso_regularize(phi_hat)
+% [PHI, ERR_BND, ERR_P] = LSO_REGULARIZE(PHI_HAT)
+%
 % Description
 %     Given proposed level-set function PHI_HAT, produces a "regularized"
 %     level-set function PHI. The boundary points of PHI_HAT and PHI are 
@@ -15,14 +15,18 @@ function [phi, err] = lso_regularize(phi_hat)
 %     PHI: 2d array (level-set function).
 %         The "regularized" level-set function.
 % 
-%     ERR: Positive number.
+%     ERR_BND: Positive number.
 %         The maximum displacement in either the x- or y-direction of a 
 %         boundary point.
+% 
+%     ERR_P: Positive number.
+%         The maximum change in the fractional filling.
 % 
 % Examples
 %     % Generate random level-set and regularize.
 %     phi_hat = rand(40, 30) - 0.2;
-%     [phi, err] = lso_regularize(phi_hat);
+%     [phi, err_b, err_p] = lso_regularize(phi_hat);
+%     lso_plot(phi);        
 
 
 dims = size(phi_hat); % Size of the 2D grid.
@@ -107,13 +111,19 @@ end
 % Make sure boundary displacement error is acceptable.
 [x_phi, y_phi] = lso_boundaries(phi);
 [x_phi_hat, y_phi_hat] = lso_boundaries(phi_hat);
-err = max([abs(x_phi - x_phi_hat); abs(y_phi - y_phi_hat)]);
+err_bnd = max([abs(x_phi - x_phi_hat); abs(y_phi - y_phi_hat)]);
 
-if (err >= 1e-10)
-    warning('Boundary displacement error, %e, exceeds threshold.', err);
+if (err_bnd >= 1e-10)
+    warning('Boundary displacement error, %e, exceeds threshold.', err_bnd);
+end
+
+% Make sure that the fractional-filling has not changed significantly.
+err_p = max(max(abs(lso_fracfill(phi) - lso_fracfill(phi_hat))));
+if (err_p >= 1e-10)
+    warning('Fractional-filling error, %e, exceeds threshold.', err_p);
 end
 
 
 % % Plot phi.
-% subplot 121; imagesc(phi', [-1 1]); axis equal tight;
-% subplot 122; imagesc(phi_hat', [-1 1]); axis equal tight;
+% subplot 121; lso_plot(phi);
+% subplot 122; lso_plot(phi_hat);
