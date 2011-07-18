@@ -66,8 +66,9 @@ function [A] = my_dg_dphi(phi, adj, s)
 N = numel(phi);
 ind = find(adj);
 if (s > 0)
-    phi_ind = ind + s * (abs(phi(ind)) >= abs(phi(ind+s)));
+    ind = ind(find(abs(phi(ind)) < abs(phi(ind+s))));
 else
-    phi_ind = ind + s * (abs(phi(ind)) > abs(phi(ind+s)));
+    ind = ind(find(abs(phi(ind)) <= abs(phi(ind+s))));
 end
-A = sparse(ind, phi_ind, -phi(phi_ind)./(phi(ind)-phi(ind+s)).^2, N, N);
+A = sparse(ind, ind, -phi(ind+s)./(phi(ind)-phi(ind+s)).^2, N, N) + ...
+    sparse(ind, ind+s, phi(ind)./(phi(ind)-phi(ind+s)).^2, N, N);
