@@ -2,26 +2,17 @@ function [dphi] = lso_update(phi, dp)
 
 dims = size(phi);
 N = prod(dims);
-
-
-%     %
-%     % Form selection matrix for p that are next to a border.
-%     % These are the cells whose fractional-filling can actually be perturbed.
-%     %
-% 
-gamma = lso_priv_gamma(phi); % Find boundary points.
-% ind = find((gamma{1} ~= 0.5) | (gamma{2} ~= 0.5) | ... % Cells not on boundary.
-%     (gamma{3} ~= 0.5) | (gamma{4} ~= 0.5));
-% S_p = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
-
+ 
 
     %
     % Form the dp / dgamma matrix.
     %
 
-my_diag = @(x) spdiags(x(:), 0, numel(x), numel(x));
+gamma = lso_priv_gamma(phi); % Find boundary points.
 width = 2 * sign(phi) .* (gamma{1} + gamma{2});
 height = 2 * sign(phi) .* (gamma{3} + gamma{4});
+
+my_diag = @(x) spdiags(x(:), 0, numel(x), numel(x)); % Helper function.
 dp_dg = [my_diag(height), my_diag(height), my_diag(width), my_diag(width)];
 
 
@@ -49,7 +40,7 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
     %
     % Solve the following problem:
     %     minimize ||dphi||^2
-    %     subject to A dphi == dp
+    %     subject to C dphi == dp
     % 
 
 C = dp_dg * dg_dphi * S_phi';
