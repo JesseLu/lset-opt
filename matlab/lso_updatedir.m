@@ -1,7 +1,21 @@
-function [dphi] = lso_update(phi, dp)
+function [dphi] = lso_updatedir(phi, dp)
+% [DPHI] = LSO_UPDATEDIR(PHI, DP)
+% 
+% Description
+%     Find a derivative in phi to approximate the derivative in p.
+% 
+% Inputs
+%     PHI: 2d array (level-set function).
+% 
+%     DP: 2d array.
+%         The derivative in the fractional-filling (p).
+%             
+% Outputs
+%     DPHI: 2d array.
+%         The derivative in the level-set function.
 
-dims = size(phi);
-N = prod(dims);
+dims = size(phi); % Size of grid.
+N = prod(dims); % Number of elements in the grid.
  
 
     %
@@ -51,15 +65,22 @@ dphi = reshape(S_phi' * x, size(phi));
 
 
 
-
+    %
+    % Help construct the dg_dphi matrix.
+    %
 
 function [A] = my_dg_dphi(phi, adj, s)
-N = numel(phi);
+
+N = numel(phi); % Number of elements in the grid.
+
+% Find the cells whose gamma points are viable.
 ind = find(adj);
-if (s > 0)
+if (s > 0) % Break ties.
     ind = ind(find(abs(phi(ind)) < abs(phi(ind+s))));
 else
     ind = ind(find(abs(phi(ind)) <= abs(phi(ind+s))));
 end
+
+% Form the submatrix.
 A = sparse(ind, ind, -phi(ind+s)./(phi(ind)-phi(ind+s)).^2, N, N) + ...
     sparse(ind, ind+s, phi(ind)./(phi(ind)-phi(ind+s)).^2, N, N);
