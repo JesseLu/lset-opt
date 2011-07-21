@@ -47,6 +47,13 @@ phi_hat = phi_hat + eps * (phi_hat == 0);
 [adj, on_border] = lso_priv_adjacents(phi_hat); % Find border cells.
 phi = (~on_border) .* sign(phi_hat); % Fix values of non-border cells.
 
+% If there are no borders, we're done.
+if isempty(find(on_border))
+    err_bnd = 0;
+    err_p = 0;
+    return
+end
+
 
     %
     % Step 3: Initialize remaining cells by solving minimization problem.
@@ -74,11 +81,18 @@ A = [my_eq(find(adj{1}), 1); my_eq(find(adj{3}), dims(1))];
 % Solve for phi.
 % The following solves the problem:
 %     minimize ||x - b||^2
-%     subject to C' * x == d
+%     subject to C * x == d
+% See Stanford EE 263 (Boyd) notes page 8-15.
 C = A * S_on';
 b = sign(S_on * phi_hat(:));
 d = zeros(size(A,1), 1);
-x = b - C' * ((C * C') \ (C * b - d));
+
+x = lso_priv_undersolver(b, sparse(C), d);
+% x = b - C' * ((C * C') \ (C * b - d));
+% size(C)
+% size(b)
+% size(d)
+% x = b - (C * C') \ (C * b - d);
 
 % Form regularized phi.
 phi = reshape(phi(:) + S_on'*x, dims);
@@ -88,8 +102,15 @@ phi = reshape(phi(:) + S_on'*x, dims);
     % Step 4: Check answer (simple tests).
     %
 
+% % Plot phi.
+% subplot 121; lso_plot(phi);
+% subplot 122; lso_plot(phi_hat);
+% pause
+
 % Make sure none of the values of phi has changed sign.
+    size(phi)
 if any(sign(phi) ~= sign(phi_hat))
+    spy(sign(phi) ~= sign(phi_hat))
     error('During initialization, PHI changed sign!');
 end
 
@@ -98,17 +119,13 @@ end
 [x_phi_hat, y_phi_hat] = lso_boundaries(phi_hat);
 err_bnd = max([abs(x_phi - x_phi_hat); abs(y_phi - y_phi_hat)]);
 
-if (err_bnd >= 1e-10)
+if (err_bnd >= 1e-6)
     warning('Boundary displacement error, %e, exceeds threshold.', err_bnd);
 end
 
 % Make sure that the fractional-filling has not changed significantly.
 err_p = max(max(abs(lso_fracfill(phi) - lso_fracfill(phi_hat))));
-if (err_p >= 1e-10)
+if (err_p >= 1e-6)
     warning('Fractional-filling error, %e, exceeds threshold.', err_p);
 end
 
-
-% % Plot phi.
-% subplot 121; lso_plot(phi);
-% subplot 122; lso_plot(phi_hat);

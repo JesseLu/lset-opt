@@ -11,7 +11,7 @@ err = [];
 % Start tests.
 start_time = tic;
 while (toc(start_time) < time_limit)
-    dims(end+1,:) = randi(100, [1 2]); % Pick dimensions of grid.
+    dims(end+1,:) = randi(10, [1 2]); % Pick dimensions of grid.
 
     % Choose variables.
     phi = lso_regularize(rand(dims(end,:)) - rand(1));
