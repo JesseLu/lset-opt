@@ -36,6 +36,12 @@ dp_dg = [my_diag(height), my_diag(height), my_diag(width), my_diag(width)];
 
 [adj, on_border] = lso_priv_adjacents(phi); % Find cells on border.
 
+% If no cells on border, return dphi = 0.
+if isempty(find(on_border))
+    dphi = 0 * dp;
+    return
+end
+
 % This matrix connects how values of gamma are affected by values of phi.
 dg_dphi = [my_dg_dphi(phi, adj{1}, 1); ...
     my_dg_dphi(phi, adj{2}, -1); ...
@@ -60,7 +66,7 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 C = dp_dg * dg_dphi * S_phi';
 d = dp(:);
 b = zeros(size(C,2), 1);
-x = b - C' * ((C * C') \ (C * b - d));
+x = lso_priv_solver(b, C, d);
 dphi = reshape(S_phi' * x, size(phi));
 
 
