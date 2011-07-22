@@ -67,15 +67,14 @@ D = @(s) sparse(repmat(1:prod(dims-s), 1, 2), ... % For arbitrary differences.
     [ones(dims-s), -ones(dims-s)], prod(dims-s), prod(dims));
 D = [D([1 0]); D([0 1])]; % Concatenate both horizontal and vertical.
 
-% Form selection matrices for cells on and off the border.
+% Form selection matrix for cells on the border.
 my_sel = @(ind) sparse(1:length(ind), ind, ones(length(ind),1), length(ind), N);
 S_on = my_sel(find(on_border));
-S_off = my_sel(find(~on_border));
 
 % Form equality constrained matrix.
 my_eq = @(ind, shift) ... % Forms half of the matrix.
-    sparse(repmat(1:length(ind), 1, 2), [ind; ind+shift], ...
-    [phi_hat(ind+shift); -phi_hat(ind)], length(ind), N);
+    sparse(repmat(1:length(ind), 1, 2), [ind, ind+shift], ...
+    [phi_hat(ind+shift), -phi_hat(ind)], length(ind), N);
 A = [my_eq(find(adj{1}), 1); my_eq(find(adj{3}), dims(1))];
 
 % Solve for phi.
@@ -108,9 +107,10 @@ phi = reshape(phi(:) + S_on'*x, dims);
 % pause
 
 % Make sure none of the values of phi has changed sign.
-    size(phi)
 if any(sign(phi) ~= sign(phi_hat))
-    spy(sign(phi) ~= sign(phi_hat))
+    subplot 121; lso_plot(phi);
+    subplot 122; lso_plot(phi_hat);
+    on_border
     error('During initialization, PHI changed sign!');
 end
 
