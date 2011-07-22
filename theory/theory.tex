@@ -124,4 +124,22 @@ When performing a topological update, the nucleation of islands can be performed
 \begin{equation}
 \phi_0 = \frac{\sqrt{\Delta p}}{\sqrt{\Delta p} - 2\sqrt{2}} \phi_i.
 \end{equation}    
+
+
+
+\appendix
+\section{Minimum-distance with equality constraints solver}
+The numerical problems in regularization and topology updates can be cast into the following form,
+\begin{align}
+    \text{minimize} \quad & \| x - x_0 \|^2 \\
+    \text{subject to} \quad & Ax = b
+\end{align}
+whose solution, if $A$ is non-singular, is
+\begin{equation}
+    x = x_0 - A^T (A A^T)^{-1} (A x_0 - b).
+\end{equation}
+
+Unfortunately, if $A$ is singular, which it often will be for our purposes, one needs to eliminate linearly-dependent rows of $A$. This can be accomplished using QR-factorization to find the linearly-dependent rows of $A$ and eliminate them, as well as the corresponding entries in $b$.
+
+
 \end{document}
