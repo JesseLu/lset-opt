@@ -25,6 +25,5 @@ gamma = lso_priv_gamma(phi);
 
 p = sign(phi) .* ((gamma{1} + gamma{2}) + (gamma{3} + gamma{4}) - 1);
 
-
     
 

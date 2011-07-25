@@ -22,12 +22,8 @@ N = prod(dims); % Number of elements in the grid.
     % Form the dp / dgamma matrix.
     %
 
-gamma = lso_priv_gamma(phi); % Find boundary points.
-width = 2 * sign(phi) .* (gamma{1} + gamma{2});
-height = 2 * sign(phi) .* (gamma{3} + gamma{4});
-
 my_diag = @(x) spdiags(x(:), 0, numel(x), numel(x)); % Helper function.
-dp_dg = [my_diag(height), my_diag(height), my_diag(width), my_diag(width)];
+dp_dg = repmat(my_diag(sign(phi)), 1, 4);
 
 
     %

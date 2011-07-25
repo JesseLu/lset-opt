@@ -1,8 +1,6 @@
 Now...
 ======
 
-1.  Start branch with new, linear fractional-filling scheme.
-1.  Re-analyze error in update_dir by refining test.
 1.  If new scheme works better, re-write theory.
 
 Next...
