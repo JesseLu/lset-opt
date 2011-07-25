@@ -1,4 +1,9 @@
 function [adj, on_border] = lso_priv_adjacents(phi)
+% [ADJ, ON_BORDER] = LSO_PRIV_ADJACENTS(PHI)
+% 
+% Description
+%     Finds whether a cell is adjacent to a border on either of it's four
+%     borders.
 
 dims = size(phi); % Dimensions of the grid.
 

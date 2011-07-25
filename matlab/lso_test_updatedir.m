@@ -19,12 +19,9 @@ while (toc(start_time) < time_limit)
     dp = randn(dims);
     dp = dp ./ norm(dp(:));
 
-%     p1 = p + dp
-%     dp = 
-
     % Get the update direction and compute error.
     dphi = lso_updatedir(phi, dp);
-    s = 1e-5;
+    s = 1e-3;
     e = abs(((p > -1) & (p < 1)) .* ...
         (lso_fracfill(phi + s * dphi) - (p + s * dp)) ./ s);
     err(end+1) = max(e(:)); 
@@ -35,18 +32,7 @@ while (toc(start_time) < time_limit)
     if (err < fail_lim)
         fprintf('passed.\n');
     else
-        [temp, ind] = max(e(:));
-        [i, j] = ind2sub(size(e), ind);
-        k = 2;
-        subplot 121; imagesc(e(i-k:i+k,j-k:j+k)'); axis equal tight;
-        f = phi + 1e-5 * dphi;
-        subplot 122; lso_plot(f(i-k:i+k, j-k:j+k));
-        phi(i,j)
-        dphi(i,j)
-        p(i,j)
-        dp(i,j)
-
-        fprintf('FAILED! error (%e)\n', max(err(:)));
+        fprintf('FAILED!\n');
         return
     end
 end

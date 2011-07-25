@@ -27,5 +27,6 @@ plot(x, y, 'r.');
 hold off
 
 % Make things look pretty.
+colormap('gray');
 axis(a);
 axis equal tight;
