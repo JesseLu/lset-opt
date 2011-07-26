@@ -23,10 +23,7 @@ dims = size(phi);
     % Find which cells are viable for island nucleation.
     %
 
-s{1} = cat(1, phi(2:end,:), zeros(1,dims(2))); % To the right.
-s{2} = cat(1, zeros(1,dims(2)), phi(1:end-1,:)); % To the left.
-s{3} = cat(2, phi(:,2:end), zeros(dims(1),1)); % Downwards.
-s{4} = cat(2, zeros(dims(1),1), phi(:,1:end-1)); % Upwards.
+s = lso_priv_shifted(phi);
 
 % Need the current and four adjacent cells to be all either 1 or -1, and the
 % value of dp must be of the opposite sign.

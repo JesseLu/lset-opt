@@ -1,10 +1,11 @@
 Now...
 ======
 
-1.  Make lso_update
-1.  Make tests for lso_update
+1.  Investigate how to minimize oscillating behavior.
+1.  Update theory.
+1.  Create and implement boundary island nucleation funcitonality.
 
 Next...
 =======
 
-1.  Implement island/peninsula assymmetries as preferential shifts.
+1.  Consider implementing island/peninsula assymmetries as preferential shifts.

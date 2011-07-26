@@ -14,6 +14,7 @@ function [dphi] = lso_updatedir(phi, dp)
 %     DPHI: 2d array.
 %         The derivative in the level-set function.
 
+
 dims = size(phi); % Size of grid.
 N = prod(dims); % Number of elements in the grid.
  
@@ -54,6 +55,24 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 
     %
+    % Find weights for phi on border, but without control of boundary points.
+    %
+
+gamma = lso_priv_gamma(phi);
+s = lso_priv_shifted(phi);
+w_ind = ind(find(((phi(ind) .* dp(ind)) < 0) .* ...
+    (gamma{1}(ind) == 0.5) .* (gamma{2}(ind) == 0.5) .* ...
+    (gamma{3}(ind) == 0.5) .* (gamma{4}(ind) == 0.5))); 
+phi_i = sign(phi(w_ind)) .* min(...
+    -1 * [adj{1}(w_ind).*abs(s{1}(w_ind)), adj{2}(w_ind).*abs(s{2}(w_ind)), ...
+    adj{3}(w_ind).*abs(s{3}(w_ind)), adj{4}(w_ind).*abs(s{4}(w_ind))], [], 2);
+w = sparse(dims(1), dims(2));
+capped_dp = min([abs(dp(w_ind)), (0.5-1e-1)*ones(size(w_ind))], [], 2);
+w(w_ind) = -phi_i ./ (2*capped_dp - 1) - phi(w_ind);
+% w(w_ind) = -phi_i - phi(w_ind);
+
+
+    %
     % Solve the following problem:
     %     minimize ||dphi||^2
     %     subject to C dphi == dp
@@ -61,7 +80,8 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 C = dp_dg * dg_dphi * S_phi';
 d = dp(:);
-b = zeros(size(C,2), 1);
+b = zeros(size(C,2), 1) + S_phi * w(:);
+% b = zeros(size(C,2), 1);
 x = lso_priv_solver(b, C, d);
 dphi = reshape(S_phi' * x, size(phi));
 

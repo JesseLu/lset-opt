@@ -21,7 +21,7 @@ while (toc(start_time) < time_limit)
 
     % Get the update direction and compute error.
     dphi = lso_updatedir(phi, dp);
-    s = 1e-3;
+    s = 1e-4;
     e = abs(((p > -1) & (p < 1)) .* ...
         (lso_fracfill(phi + s * dphi) - (p + s * dp)) ./ s);
     err(end+1) = max(e(:)); 

@@ -5,14 +5,14 @@ function [phi] = lso_update(phi, dp)
     %
 
 dphi = lso_updatedir(phi, dp);
-phi = phi + dphi;
+phi = phi + 3e-1 * dphi;
 
 
     %
     % Nucleate and form islands.
     %
 
-isles = lso_islands(phi, dp);
+phi = lso_islands(phi, dp);
 
     %
     % Check errors? Regularize?
