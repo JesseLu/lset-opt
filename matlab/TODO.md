@@ -1,7 +1,7 @@
 Now...
 ======
 
-1.  change lso_fracfill to accomodate overlapping cells
+1.  Update doc and theory on regularize, to say that it provides one-to-one from gamma to phi.
 
 Next...
 =======

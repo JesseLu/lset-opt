@@ -24,7 +24,7 @@ N = prod(dims); % Number of elements in the grid.
     %
 
 my_diag = @(x) spdiags(x(:), 0, numel(x), numel(x)); % Helper function.
-dp_dg = repmat(my_diag(sign(phi)), 1, 4);
+dp_dg = repmat(my_diag(0.5 * sign(phi)), 1, 4);
 
 
     %
@@ -55,34 +55,12 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 
     %
-    % Find weights for phi on border, but without control of boundary points.
-    %
-
-gamma = lso_priv_gamma(phi);
-s = lso_priv_shifted(phi);
-w_ind = ind(find(((phi(ind) .* dp(ind)) < 0) .* ...
-    (gamma{1}(ind) == 0.5) .* (gamma{2}(ind) == 0.5) .* ...
-    (gamma{3}(ind) == 0.5) .* (gamma{4}(ind) == 0.5))); 
-phi_i = sign(phi(w_ind)) .* min(...
-    -1 * [adj{1}(w_ind).*abs(s{1}(w_ind)), adj{2}(w_ind).*abs(s{2}(w_ind)), ...
-    adj{3}(w_ind).*abs(s{3}(w_ind)), adj{4}(w_ind).*abs(s{4}(w_ind))], [], 2);
-w = sparse(dims(1), dims(2));
-capped_dp = min([abs(dp(w_ind)), (0.5-1e-1)*ones(size(w_ind))], [], 2);
-w(w_ind) = -phi_i ./ (2*capped_dp - 1) - phi(w_ind);
-% w(w_ind) = -phi_i - phi(w_ind);
-
-
-    %
     % Solve the following problem:
-    %     minimize ||dphi||^2
-    %     subject to C dphi == dp
     % 
 
-C = dp_dg * dg_dphi * S_phi';
-d = dp(:);
-b = zeros(size(C,2), 1) + S_phi * w(:);
-% b = zeros(size(C,2), 1);
-x = lso_priv_solver(b, C, d);
+A = dp_dg * dg_dphi * S_phi';
+b = dp(:);
+x = (A'*A + 1e-10 * speye(size(A,2))) \ (A' * b);
 dphi = reshape(S_phi' * x, size(phi));
 
 
@@ -97,11 +75,6 @@ N = numel(phi); % Number of elements in the grid.
 
 % Find the cells whose gamma points are viable.
 ind = find(adj);
-if (s > 0) % Break ties.
-    ind = ind(find(abs(phi(ind)) < abs(phi(ind+s))));
-else
-    ind = ind(find(abs(phi(ind)) <= abs(phi(ind+s))));
-end
 
 % Form the submatrix.
 A = sparse(ind, ind, -phi(ind+s)./(phi(ind)-phi(ind+s)).^2, N, N) + ...

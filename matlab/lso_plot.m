@@ -22,6 +22,7 @@ a = axis;
 
 % Plot the boundary points.
 hold on
+contour(phi', [0 0], 'r-');
 [x, y] = lso_boundaries(phi);
 plot(x, y, 'r.');
 hold off
