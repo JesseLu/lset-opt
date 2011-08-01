@@ -1,5 +1,5 @@
-function [phi] = lso_islands(phi, dp)
-% [PHI] = LSO_ISLANDS(PHI, DP)
+function [phi, dphi] = lso_islands(phi, dp, num_isles)
+% [PHI, DPHI] = LSO_ISLANDS(PHI, DP)
 % 
 % Description
 %     Form islands at viable cells in the grid. A viable cell is not adjacent
@@ -15,9 +15,13 @@ function [phi] = lso_islands(phi, dp)
 %     PHI: 2d array (level-set function).
 %         New level-set function (with islands).
 
-
+    
 dims = size(phi);
+dphi = zeros(dims); % Output variable.
 
+if (num_isles <= 0) % If we don't want any islands, we're done!
+    return
+end
 
     %
     % Find which cells are viable for island nucleation.
@@ -42,12 +46,21 @@ end
     %
 
 ind = [];
-while(sum(viable(:)) > 0)
+t = lso_priv_shifted(dp);
+dp_stren = norm([4 1 1 1 1])^-1 * (4*dp + t{1} + t{2} + t{3} + t{4});
+while (sum(viable(:)) > 0) & (num_isles >= 0)
     % Find viable cell with strongest dp.
-    [temp, ind(end+1)] = max(viable(:) .* abs(dp(:)));
+    [temp, ind(end+1)] = max(viable(:) .* abs(dp_stren(:)));
+
+    % Make sure dp_stren is pointing in the same direction as dp
+    if sign(dp(ind(end))) ~= sign(dp_stren(ind(end)))
+        break % If it is not, then we're done finding islands to nucleate.
+    end
 
     % Eliminate neighboring viable cells.
     viable(ind(end) + [0 -1 1 -dims(1) dims(1)]) = 0;
+    
+    num_isles = num_isles - 1; % Record that we nucleated one island.
 end
 
 
@@ -57,8 +70,9 @@ end
 
 % Cap relevant dp values at 2.
 dp_cap = abs(dp(ind));
-dp_cap = 2 * (dp_cap >= 2) + dp_cap .* (dp_cap < 2);
+dp_cap = 1 * (dp_cap >= 1) + dp_cap .* (dp_cap < 1);
 
 % Form islands.
-phi(ind) = (dp_cap ./ (dp_cap - 4)) .* sign(phi(ind));
+dphi(ind) = (dp_cap ./ (dp_cap - 2)) .* sign(phi(ind));
+phi(ind) = -eps .* sign(phi(ind)); % new baseline phi.
 

@@ -60,7 +60,7 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 A = dp_dg * dg_dphi * S_phi';
 b = dp(:);
-x = (A'*A + 1e-10 * speye(size(A,2))) \ (A' * b);
+x = (A'*A + 1e-8 * speye(size(A,2))) \ (A' * b);
 dphi = reshape(S_phi' * x, size(phi));
 
 

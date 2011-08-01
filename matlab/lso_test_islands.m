@@ -8,7 +8,7 @@ fail_lim = 1e-15; % If error is more than this, issue a fail.
 % Start tests.
 start_time = tic;
 while (toc(start_time) < time_limit)
-    dims = randi(100, [1 2]); % Pick dimensions of grid.
+    dims = randi(5, [1 2]) + 5; % Pick dimensions of grid.
     fprintf('(%d, %d):  \t', dims);
 
     % Choose variables.
@@ -16,14 +16,15 @@ while (toc(start_time) < time_limit)
     phi0 = lso_regularize(randn(dims) + pol);
     dp = 2*rand(dims) - 1;
 
-    phi1 = lso_islands(phi0, dp); % Make islands.
+    [phi1, dphi] = lso_islands(phi0, dp); % Make islands.
+    phi1 = phi1 + dphi;
 
     % Calculate error.
     p = {lso_fracfill(phi0), lso_fracfill(phi1)};
-    e = (p{2} ~= p{1}) .* ((p{2} - p{1}) - dp);
+    e = (phi0 ~= phi1) .* ((p{2} - p{1}) - dp);
     err = max(abs(e(:)));
     fprintf('%e\t', err);
-
+    
     % Tell us whether we passed or not.
     if (err < fail_lim)
         fprintf('passed.\n');

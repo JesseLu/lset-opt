@@ -1,23 +1,27 @@
-function lso_test_update()
+function lso_test_update(num_isles)
 % 
 % Description
 %     Run tests on LSO_ISLANDS for TIME_LIMIT seconds.
 
-fail_lim = 1e-15; % If error is more than this, issue a fail.
 
-dims = randi(3, [1 2])+5; % Pick dimensions of grid.
+dims = randi(10, [1 2])+10; % Pick dimensions of grid.
 fprintf('(%d, %d):\n', dims);
 
 
 phi_target = randn(dims);
+d = 4;
+phi_target = interp2(phi_target, [1:d^-1:dims(2)]', 1:d^-1:dims(1));
+dims = size(phi_target)
+
 p_target = lso_fracfill(phi_target);
-phi = lso_regularize(randn(dims)-1e3);
-dp = @(p) (p_target - p)./1e0;
+sel_phi = zeros(dims);
+sel_phi(2:end-1, 2:end-1) = 1;
+
+phi = (1-sel_phi) .* (phi_target) - sel_phi;
+dp = @(p) (p_target - p);
 err = @(p) norm(p_target(:) - p(:));
 
 for k = 1 :1e4 
-    phi = lso_regularize(lso_update(phi, dp(lso_fracfill(phi))));
-    e = err(lso_fracfill(phi))
     
     subplot 121; lso_plot(phi); 
     subplot 122; lso_plot(phi_target); 
@@ -25,6 +29,8 @@ for k = 1 :1e4
     axis equal tight;
 
     pause(0.4);
+    phi = lso_update(phi, ones(dims), dp(lso_fracfill(phi)), err, num_isles);
+    e = err(lso_fracfill(phi))
 end
 
 
