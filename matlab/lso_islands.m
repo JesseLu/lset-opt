@@ -1,4 +1,4 @@
-function [phi, dphi] = lso_islands(phi, dp, num_isles)
+function [phi, dphi] = lso_islands(phi, dp, max_isles)
 % [PHI, DPHI] = LSO_ISLANDS(PHI, DP)
 % 
 % Description
@@ -10,18 +10,31 @@ function [phi, dphi] = lso_islands(phi, dp, num_isles)
 % 
 %     DP: 2d array.
 %         The derivative in the fractional-filling (p).
+% 
+%     MAX_ISLES: non-negative integer.
+%         The maximum number of new islands to nucleate.
 %             
 % Outputs
 %     PHI: 2d array (level-set function).
-%         New level-set function (with islands).
+%         New level-set function which is set up for island nucleation. 
+%         However, no islands are nucleated on PHI yet.
+% 
+%     DPHI: 2d array.
+%         PHI + a * DPHI, where a > 0, results in a level-set function with 
+%         nucleated islands.
 
     
+    %
+    % Check inputs.
+    %
+
 dims = size(phi);
 dphi = zeros(dims); % Output variable.
 
-if (num_isles <= 0) % If we don't want any islands, we're done!
+if (max_isles <= 0) % If we don't want any islands, we're done!
     return
 end
+
 
     %
     % Find which cells are viable for island nucleation.
@@ -29,8 +42,8 @@ end
 
 s = lso_priv_shifted(phi);
 
-% Need the current and four adjacent cells to be all either 1 or -1, and the
-% value of dp must be of the opposite sign.
+% Need the values of phi of the current and four adjacent cells to be all 
+% either 1 or -1. Also, the value of dp must be of the opposite sign.
 viable = ...
     ((dp < 0) & (phi==1) & (s{1}==1) & (s{2}==1) & (s{3}==1) & (s{4}==1)) | ...
     ((dp > 0) & (phi==-1) & (s{1}==-1) & (s{2}==-1) & (s{3}==-1) & (s{4}==-1));
@@ -45,11 +58,15 @@ end
     % sort by strength of dp at that cell.
     %
 
-ind = [];
-t = lso_priv_shifted(dp);
+% Calculate the strength of dp at the current cell.
+% Uses a heuristic to approximate smearing.
+t = lso_priv_shifted(dp); 
 dp_stren = norm([4 1 1 1 1])^-1 * (4*dp + t{1} + t{2} + t{3} + t{4});
-while (sum(viable(:)) > 0) & (num_isles >= 0)
-    % Find viable cell with strongest dp.
+
+ind = []; % Indices of phi which are viable.
+num_isles = 0;
+while (sum(viable(:)) > 0) & (num_isles < max_isles)
+    % Find viable cell with strongest dp_stren.
     [temp, ind(end+1)] = max(viable(:) .* abs(dp_stren(:)));
 
     % Make sure dp_stren is pointing in the same direction as dp
@@ -60,7 +77,7 @@ while (sum(viable(:)) > 0) & (num_isles >= 0)
     % Eliminate neighboring viable cells.
     viable(ind(end) + [0 -1 1 -dims(1) dims(1)]) = 0;
     
-    num_isles = num_isles - 1; % Record that we nucleated one island.
+    num_isles = num_isles + 1; % Record that we nucleated one island.
 end
 
 
@@ -68,11 +85,13 @@ end
     % Form islands to exactly match capped dp values.
     %
 
-% Cap relevant dp values at 2.
+% Cap relevant dp values at 1.
 dp_cap = abs(dp(ind));
 dp_cap = 1 * (dp_cap >= 1) + dp_cap .* (dp_cap < 1);
 
-% Form islands.
+% How to change phi to form islands.
 dphi(ind) = (dp_cap ./ (dp_cap - 2)) .* sign(phi(ind));
-phi(ind) = -eps .* sign(phi(ind)); % new baseline phi.
+
+% New baseline phi, ready for island nucleation.
+phi(ind) = eps .* sign(phi(ind)); 
 

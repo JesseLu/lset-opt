@@ -22,14 +22,16 @@ Initialization is able to exactly preserve shape boundaries because boundary poi
 Fill-fraction
 -------------
 
-The fill-fraction, p, at every grid point is determined from the boundary points and the polarity of phi. The values of p may range from -1 to +1, inclusive. A value of -1 indicates that the cell is completely filled with material A, while +1 indicates complete filling by material B. Lset-opt defines each cell as the box centered at a grid point, with length and height of 1.0 (the grid spacing is 1.0). 
+The fill-fraction, p, at every grid point is determined from the boundary points and the polarity of phi. The values of p may range from -1 to +1, inclusive. A value of -1 indicates that the cell is completely filled with material A, while +1 indicates complete filling by material B. 
+
+Lset-opt defines each cell as the box centered at a grid point, with length and height of 2.0 (the grid spacing is 1.0). This causes the cells to overlap, or smear with one another, which seems more useful than non-overlapping cells. Specifically, overlapping cells provide more information as to which direction the boundary should move in.
 
     The sign of phi determines the material at the center of the cell, which will fill a rectangle within the cell. The remainder of the cell is filled with the other material, and the fill-fraction is given by:
 
-    p = sign(phi) * (width + height - 1).
+    p = 0.5 * sign(phi) * (width-1 + height-1).
     
 
-The width of the inner rectangle is determined by the boundary points to the left and right of the grid point. If no boundary point exists on a side, or the boundary point is more than 0.5 away from the cell center, then we assume that the inner rectangle extends a distance of 0.5 in that direction. The height of the rectangle is calculated in an equivalent way.
+The width of the inner rectangle is determined by the boundary points to the left and right of the grid point. If no boundary point exists on a side, then we assume that the inner rectangle extends a distance of 1.0 in that direction. The height of the rectangle is calculated in an equivalent way.
 
 
 Dynamic shapes

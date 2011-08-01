@@ -1,7 +1,11 @@
 function lso_test_islands(time_limit)
+% LSO_TEST_ISLANDS(TIME_LIMIT)
 % 
 % Description
 %     Run tests on LSO_ISLANDS for TIME_LIMIT seconds.
+% 
+% Example
+%     lso_test_islands(1); % Run tests on lso_islands for 1 second.
 
 fail_lim = 1e-15; % If error is more than this, issue a fail.
 
@@ -20,6 +24,7 @@ while (toc(start_time) < time_limit)
     phi1 = phi1 + dphi;
 
     % Calculate error.
+    % Error is only calculated for cells on which islands were nucleated.
     p = {lso_fracfill(phi0), lso_fracfill(phi1)};
     e = (phi0 ~= phi1) .* ((p{2} - p{1}) - dp);
     err = max(abs(e(:)));

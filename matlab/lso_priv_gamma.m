@@ -1,4 +1,20 @@
 function [gamma] = lso_priv_gamma(phi)
+% GAMMA = LSO_PRIV_GAMMA(PHI)
+% 
+% Description
+%     Calculate the distance from cell center to border points based on the 
+%     level-set function. If there is no adjacent border point, then the 
+%     distance is set to 1.
+% 
+% Inputs
+%     PHI: 2d array (level-set function)
+% 
+% Outputs
+%     GAMMA: 4-element cell of 2d arrays.
+%         GAMMA{I}, where I=1,2,3,4 is the distance to the adjacent boundary 
+%         point to the right, left, below, and above the current cell. If there
+%         is no adjacent boundary, then the distance is set to 1.
+
 
 dims = size(phi); % Size of the array.
 

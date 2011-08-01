@@ -4,6 +4,19 @@ function [adj, on_border] = lso_priv_adjacents(phi)
 % Description
 %     Finds whether a cell is adjacent to a border on either of it's four
 %     borders.
+% 
+% Inputs
+%     PHI: 2d array (level-set function).
+% 
+% Outputs
+%     ADJ: 4-element cell of 2d arrays.
+%     ADJ{I} for I = 1,2,3,4 denote whether there is a border to the right,
+%     left, below, and above the current cell respectively. A value of 1 means
+%     that a border is present, while a value of 0 means that one is not.
+% 
+%     ON_BORDER: 2d array.
+%     1 if cell is adjacent to a border (in some direction), 0 otherwise.
+
 
 dims = size(phi); % Dimensions of the grid.
 

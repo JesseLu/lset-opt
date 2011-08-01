@@ -55,12 +55,17 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 
     %
-    % Solve the following problem:
+    % Solve the following least-squares problem:
+    %   minimize || A*x - b ||^2
     % 
 
 A = dp_dg * dg_dphi * S_phi';
 b = dp(:);
-x = (A'*A + 1e-8 * speye(size(A,2))) \ (A' * b);
+
+% When solving, add a small I since A is very often singular.
+x = (A'*A + 1e-8 * speye(size(A,2))) \ (A' * b); 
+
+% Insert values of x.
 dphi = reshape(S_phi' * x, size(phi));
 
 

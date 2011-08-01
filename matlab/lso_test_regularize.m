@@ -3,6 +3,9 @@ function lso_test_regularize(time_limit)
 % 
 % Description
 %     Run tests on LSO_REGULARIZE for TIME_LIMIT seconds.
+% 
+% Example
+%     lso_test_regularize(10); % Test lso_regularize for 10 seconds.
 
 fail_lim = 1e-6; % If error is more than this, issue a fail.
 

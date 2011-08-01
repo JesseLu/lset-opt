@@ -22,9 +22,13 @@ a = axis;
 
 % Plot the boundary points.
 hold on
-contour(phi', [0 0], 'r-');
 [x, y] = lso_boundaries(phi);
 plot(x, y, 'r.');
+
+% Connect the boundary points.
+if ~isempty(x) % Make sure there are points to connect!
+    contour(phi', [0 0], 'r-');
+end
 hold off
 
 % Make things look pretty.

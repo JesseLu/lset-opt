@@ -4,8 +4,8 @@ function [phi, err_bnd, err_p] = lso_regularize(phi_hat)
 % Description
 %     Given proposed level-set function PHI_HAT, produces a "regularized"
 %     level-set function PHI. The boundary points of PHI_HAT and PHI are 
-%     identical. See the README or the theory manuscript for what is meant by
-%     regularized.
+%     identical. LSO_REGULARIZE can be used to establish a one-to-one 
+%     relationship between the level-set function and the boundary points.
 % 
 % Inputs
 %     PHI_HAT: 2d array (level-set function).
@@ -91,11 +91,6 @@ phi = reshape(phi(:) + S_on'*x, dims);
     % Step 4: Check answer (simple tests).
     %
 
-% % Plot phi.
-% subplot 121; lso_plot(phi);
-% subplot 122; lso_plot(phi_hat);
-% pause
-
 % Make sure none of the values of phi has changed sign.
 if any(sign(phi) ~= sign(phi_hat))
     error('During initialization, PHI changed sign!');
@@ -116,3 +111,7 @@ if (err_p >= 1e-10)
     warning('Fractional-filling error, %e, exceeds threshold.', err_p);
 end
 
+% % Plot phi.
+% subplot 121; lso_plot(phi);
+% subplot 122; lso_plot(phi_hat);
+% pause

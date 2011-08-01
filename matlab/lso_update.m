@@ -1,26 +1,58 @@
-function [phi] = lso_update(phi, sel_phi, dp, p_eval, num_isles)
+function [phi] = lso_update(phi, dp, p_eval, max_isles, step_sizes)
+% PHI = LSO_UPDATE(PHI, DP, P_EVAL, MAX_ISLES, STEP_SIZES)
+% 
+% Description
+%     Update the level-set function according to the derivative in the 
+%     fractional-filling.
+% 
+% Inputs
+%     PHI: 2d array (level-set function).
+% 
+%     DP: 2d array.
+%         The derivative in the fractional-filling values.
+% 
+%     P_EVAL: Function handle.
+%         P_EVAL must accept a 2D fractional-filling array (p) and return a 
+%         non-negative scalar. LSO_UPDATE guarantees that the output PHI
+%         produces less error than the input value of PHI.
+% 
+%     MAX_ISLES: Non-negative integer.
+%         Maximum number of islands to nucleate at each iteration.
+% 
+%     STEP_SIZES: Array of non-negative numbers.
+%         The various step sizes with which to attempt to decrease P_EVAL. 
+%         These do not need to be ordered.
+% 
+% Outputs
+%     PHI: 2d array (level-set function).
+%         Updated level-set function.
 
+
+% Initial error, we need to decrease this to take a valid step.
 eval0 = p_eval(lso_fracfill(phi));
 
 
     %
-    % Change phi relative to dp.
+    % Calculate dphi based on dp.
     %
 
 dphi = lso_updatedir(phi, dp);
-[phi, dphi_isles] = lso_islands(phi, dp, num_isles);
-dphi = dphi + dphi_isles;
-dphi = sel_phi .* dphi;
-s = 2^5;
-while p_eval(lso_fracfill(phi + s * dphi)) > eval0
-    s = s / 2;
+[phi, dphi_isles] = lso_islands(phi, dp, max_isles);
+my_add = @(s) phi + s * (dphi + dphi_isles);
+
+
+    %
+    % Try various step sizes.
+    %
+
+step_sizes = sort(step_sizes(:), 'descend');
+for k = 1 : length(step_sizes)
+    if (p_eval(lso_fracfill(my_add(step_sizes(k)))) < eval0)
+        % Form the updated level-set function.
+        phi = my_add(step_sizes(k));
+        return % If we have decreased the error, then stick with this step size.
+    end
 end
 
-phi = phi + s * dphi;
-
-% phi = lso_islands(phi, sel_phi .* dp);
-
-
-    %
-    % Check errors? Regularize?
-    %
+% If we get here, then we have not been able to decrease the error.
+error('Unable to decrease error function.');
