@@ -55,4 +55,4 @@ for k = 1 : length(step_sizes)
 end
 
 % If we get here, then we have not been able to decrease the error.
-error('Unable to decrease error function.');
+warning('Unable to decrease error function.');

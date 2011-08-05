@@ -39,5 +39,6 @@ for k = 1 : 100
 
     % Update the structure.
     phi = lso_update(phi, dp(lso_fracfill(phi)), err, max_isles, 2.^[-10:10]);
+    phi = lso_quickreg(phi);
 end
 
