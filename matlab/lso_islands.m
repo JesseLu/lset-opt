@@ -1,5 +1,5 @@
-function [phi, dphi] = lso_islands(phi, dp, max_isles)
-% [PHI, DPHI] = LSO_ISLANDS(PHI, DP)
+function [phi, dphi] = lso_islands(phi, dp, max_isles, sel)
+% [PHI, DPHI] = LSO_ISLANDS(PHI, DP, MAX_ISLES, SEL)
 % 
 % Description
 %     Form islands at viable cells in the grid. A viable cell is not adjacent
@@ -13,6 +13,10 @@ function [phi, dphi] = lso_islands(phi, dp, max_isles)
 % 
 %     MAX_ISLES: non-negative integer.
 %         The maximum number of new islands to nucleate.
+%
+%     SEL: 2d array.
+%         Marks the active (changeable) cells with a 1 and inactive cells with
+%         0. 
 %             
 % Outputs
 %     PHI: 2d array (level-set function).
@@ -44,7 +48,7 @@ s = lso_priv_shifted(phi);
 
 % Need the values of phi of the current and four adjacent cells to be all 
 % either 1 or -1. Also, the value of dp must be of the opposite sign.
-viable = ...
+viable = sel &  ... 
     ((dp < 0) & (phi==1) & (s{1}==1) & (s{2}==1) & (s{3}==1) & (s{4}==1)) | ...
     ((dp > 0) & (phi==-1) & (s{1}==-1) & (s{2}==-1) & (s{3}==-1) & (s{4}==-1));
 

@@ -1,5 +1,5 @@
-function [phi] = lso_update(phi, dp, p_eval, max_isles, step_sizes)
-% PHI = LSO_UPDATE(PHI, DP, P_EVAL, MAX_ISLES, STEP_SIZES)
+function [phi] = lso_update(phi, dp, p_eval, max_isles, step_sizes, varargin)
+% PHI = LSO_UPDATE(PHI, DP, P_EVAL, MAX_ISLES, STEP_SIZES, [SEL])
 % 
 % Description
 %     Update the level-set function according to the derivative in the 
@@ -22,6 +22,10 @@ function [phi] = lso_update(phi, dp, p_eval, max_isles, step_sizes)
 %     STEP_SIZES: Array of non-negative numbers.
 %         The various step sizes with which to attempt to decrease P_EVAL. 
 %         These do not need to be ordered.
+%
+%     SEL: 2d array (optional).
+%         Marks the active (changeable) cells with a 1 and inactive cells with
+%         0. Default value: all cells active.
 % 
 % Outputs
 %     PHI: 2d array (level-set function).
@@ -31,13 +35,20 @@ function [phi] = lso_update(phi, dp, p_eval, max_isles, step_sizes)
 % Initial error, we need to decrease this to take a valid step.
 eval0 = p_eval(lso_fracfill(phi));
 
+% Determine the active (non-fixed) cells.
+if isempty(varargin)
+    sel = ones(size(phi));
+else
+    sel = varargin{1};
+end
+ 
 
     %
     % Calculate dphi based on dp.
     %
 
-dphi = lso_updatedir(phi, dp);
-[phi, dphi_isles] = lso_islands(phi, dp, max_isles);
+dphi = lso_updatedir(phi, dp, sel);
+[phi, dphi_isles] = lso_islands(phi, dp, max_isles, sel);
 my_add = @(s) phi + s * (dphi + dphi_isles);
 
 

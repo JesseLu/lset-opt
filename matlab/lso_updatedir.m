@@ -1,5 +1,5 @@
-function [dphi] = lso_updatedir(phi, dp)
-% [DPHI] = LSO_UPDATEDIR(PHI, DP)
+function [dphi] = lso_updatedir(phi, dp, sel)
+% [DPHI] = LSO_UPDATEDIR(PHI, DP, SEL)
 % 
 % Description
 %     Find a derivative in phi to approximate the derivative in p.
@@ -9,6 +9,10 @@ function [dphi] = lso_updatedir(phi, dp)
 % 
 %     DP: 2d array.
 %         The derivative in the fractional-filling (p).
+% 
+%     SEL: 2d array.
+%         Marks the active (changeable) cells with a 1 and inactive cells with
+%         0. 
 %             
 % Outputs
 %     DPHI: 2d array.
@@ -17,7 +21,7 @@ function [dphi] = lso_updatedir(phi, dp)
 
 dims = size(phi); % Size of grid.
 N = prod(dims); % Number of elements in the grid.
- 
+
 
     %
     % Form the dp / dgamma matrix.
@@ -47,10 +51,11 @@ dg_dphi = [my_dg_dphi(phi, adj{1}, 1); ...
 
 
     % 
-    % Form selection matrix for the values of phi which are next to a border.
+    % Form selection matrix for the values of phi which are next to a border 
+    % and active.
     %
 
-ind = find(on_border);
+ind = find(on_border & sel);
 S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
 
 
