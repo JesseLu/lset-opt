@@ -14,7 +14,7 @@ function lso_test_update(max_isles)
 %     lso_test_update(100); % 100 islands nucleated per iteration.
 
 
-dims = randi(2, [1 2])+2; % Pick dimensions of initial grid.
+dims = randi(4, [1 2])+2; % Pick dimensions of initial grid.
 d = 4; % Interpolation factor, for larger characteristic feature size.
 
 % Build target structure.
@@ -42,7 +42,7 @@ for k = 1 : 100
 
     % Update the structure.
     phi = lso_update(phi, dp(lso_fracfill(phi)), err, max_isles, ...
-        2.^[-10:-4], sel);
+        2.^[-10:0], sel);
 
 %     subplot 121; lso_plot(phi); title('dynamic structure');
 %     subplot 122; lso_plot(phi_target); title('target structure');

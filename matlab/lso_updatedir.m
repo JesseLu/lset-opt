@@ -23,40 +23,39 @@ dims = size(phi); % Size of grid.
 N = prod(dims); % Number of elements in the grid.
 
 
-    %
-    % Form the dp / dgamma matrix.
-    %
-
-my_diag = @(x) spdiags(x(:), 0, numel(x), numel(x)); % Helper function.
-dp_dg = repmat(my_diag(0.5 * sign(phi)), 1, 4);
-
-
-    %
-    % Form the dgamma / dphi matrix.
-    %
-
-[adj, on_border] = lso_priv_adjacents(phi); % Find cells on border.
-
-% If no cells on border, return dphi = 0.
-if isempty(find(on_border))
-    dphi = 0 * dp;
-    return
-end
-
-% This matrix connects how values of gamma are affected by values of phi.
-dg_dphi = [my_dg_dphi(phi, adj{1}, 1); ...
-    my_dg_dphi(phi, adj{2}, -1); ...
-    my_dg_dphi(phi, adj{3}, dims(1)); ...
-    my_dg_dphi(phi, adj{4}, -dims(1))];
-
-
     % 
     % Form selection matrix for the values of phi which are next to a border 
     % and active.
     %
 
-ind = find(on_border & sel);
+[adj, on_border] = lso_priv_adjacents(phi); % Find cells on border.
+ind = find(on_border & sel); % Indices of active, on-border cells.
+
+% If no active on-border cells, return dphi = 0.
+if isempty(ind)
+    dphi = 0 * dp;
+    return
+end
+ 
+% Form sparse selection matrix, which "picks out" the relevant cells.
 S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
+
+
+    %
+    % Form the dp / dphi matrix.
+    %
+
+g = lso_priv_gamma(phi); % Find gamma values (positive distances to boundary).
+
+% Determine index of the minimum-distance partner cell.
+[gamma, dir] = min([g{1}(ind), g{2}(ind), g{3}(ind), g{4}(ind)], [], 2);
+ind_i = ind + ((dir == 1) - (dir == 2)) + dims(1) * ((dir == 3) - (dir == 4));
+
+% Form the matrix.
+grad = abs(phi(ind) - phi(ind_i)); % Gradient.
+% dp_dphi = sparse(ind, ind, abs(phi(ind_i)) ./ grad.^2, N, N) + ...
+%     sparse(ind, ind_i, abs(phi(ind)) ./ grad.^2, N, N);
+dp_dphi = sparse(ind, ind, abs(phi(ind_i)) ./ grad.^2, N, N);
 
 
     %
@@ -64,28 +63,14 @@ S_phi = sparse(1:length(ind), ind, ones(length(ind), 1), length(ind), N);
     %   minimize || A*x - b ||^2
     % 
 
-A = dp_dg * dg_dphi * S_phi';
+A = dp_dphi * S_phi';
 b = dp(:);
 
 % When solving, add a small I since A is very often singular.
-x = (A'*A + 1e-8 * speye(size(A,2))) \ (A' * b); 
+% x = A \ b;
+x = (A'*A + 1e-10 * speye(size(A,2))) \ (A' * b); 
 
 % Insert values of x.
 dphi = reshape(S_phi' * x, size(phi));
 
 
-
-    %
-    % Help construct the dg_dphi matrix.
-    %
-
-function [A] = my_dg_dphi(phi, adj, s)
-
-N = numel(phi); % Number of elements in the grid.
-
-% Find the cells whose gamma points are viable.
-ind = find(adj);
-
-% Form the submatrix.
-A = sparse(ind, ind, -phi(ind+s)./(phi(ind)-phi(ind+s)).^2, N, N) + ...
-    sparse(ind, ind+s, phi(ind)./(phi(ind)-phi(ind+s)).^2, N, N);

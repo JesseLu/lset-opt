@@ -23,7 +23,8 @@ gamma = lso_priv_gamma(phi);
     % Calculate fractional-filling.
     %
 
-p = 0.5 * sign(phi) .* ((gamma{1} + gamma{2} - 1) + (gamma{3} + gamma{4} - 1));
+gamma = min(cat(3, gamma{1}, gamma{2}, gamma{3}, gamma{4}), [], 3);
+p = sign(phi) .* gamma;
 
     
 
