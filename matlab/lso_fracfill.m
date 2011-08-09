@@ -12,19 +12,7 @@ function [p] = lso_fracfill(phi)
 %     P: 2d array (fractional filling).
 %         The values of P range from -1 to 1.
 
-    %
-    % Calculate gammas.
-    %
-
-gamma = lso_priv_gamma(phi);
-
-
-    % 
-    % Calculate fractional-filling.
-    %
-
-gamma = min(cat(3, gamma{1}, gamma{2}, gamma{3}, gamma{4}), [], 3);
-p = sign(phi) .* gamma;
+p = sign(phi) .*  lso_priv_gamma(phi);
 
     
 

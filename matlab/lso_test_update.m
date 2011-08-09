@@ -31,7 +31,7 @@ sel(3:dims(1)-2, 3:dims(2)-2) = 1;
 % Setup the optimization.
 cheese = repmat([1 -1; -1 1], ceil(dims(1)/2), ceil(dims(2)/2));
 cheese = cheese(1:dims(1), 1:dims(2));
-phi = (~sel) .* phi_target + sel .* cheese;
+phi = (~sel) .* phi_target + sel;
 dp = @(p) (p_target - p);
 err = @(p) norm(p_target(:) - p(:));
 
@@ -40,10 +40,11 @@ for k = 1 : 155
     subplot 121; lso_plot(phi); title('dynamic structure');
     subplot 122; lso_plot(phi_target); title('target structure');
     axis equal tight;
-    pause
+    drawnow
+    % pause
 
     % Update the structure.
-    phi = lso_update(phi, dp(lso_fracfill(phi)), err, max_isles, ...
+    phi = lso_update(phi, dp(lso_fracfill(phi)), err, ...
         2.^[-10:0], sel);
 
 %     subplot 121; lso_plot(phi); title('dynamic structure');
