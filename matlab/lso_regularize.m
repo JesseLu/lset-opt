@@ -97,8 +97,8 @@ if any(sign(phi) ~= sign(phi_hat))
 end
 
 % Make sure boundary displacement error is acceptable.
-[x_phi, y_phi] = lso_boundaries(phi);
-[x_phi_hat, y_phi_hat] = lso_boundaries(phi_hat);
+[x_phi, y_phi] = lso_priv_boundaries(phi);
+[x_phi_hat, y_phi_hat] = lso_priv_boundaries(phi_hat);
 err_bnd = max([abs(x_phi - x_phi_hat); abs(y_phi - y_phi_hat)]);
 
 if (err_bnd >= 1e-10)

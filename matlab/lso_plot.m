@@ -22,7 +22,7 @@ a = axis;
 
 % Plot the boundary points.
 hold on
-[x, y] = lso_boundaries(phi);
+[x, y] = lso_priv_boundaries(phi);
 plot(x, y, 'r.');
 
 % Connect the boundary points.

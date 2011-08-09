@@ -2,8 +2,8 @@ function lso_test_update(max_isles)
 % LSO_TEST_UPDATE(MAX_ISLES)
 % 
 % Description
-%     Test LSO_TEST by attempting to match a topology starting with an
-%     empty grid.
+%     Test LSO_UPDATE by attempting to match a topology starting with a
+%     "cheese" grid.
 % 
 % Inputs
 %     MAX_ISLES: Non-negative integer.
@@ -14,7 +14,7 @@ function lso_test_update(max_isles)
 %     lso_test_update(100); % 100 islands nucleated per iteration.
 
 
-dims = randi(4, [1 2])+4; % Pick dimensions of initial grid.
+dims = randi(10, [1 2])+10; % Pick dimensions of initial grid.
 d = 4; % Interpolation factor, for larger characteristic feature size.
 
 % Build target structure.
@@ -29,13 +29,12 @@ sel = zeros(dims);
 sel(3:dims(1)-2, 3:dims(2)-2) = 1;
 
 % Setup the optimization.
-cheese = repmat([1 -1; -1 1], ceil(dims(1)/2), ceil(dims(2)/2));
-cheese = cheese(1:dims(1), 1:dims(2));
-phi = (~sel) .* phi_target + sel;
+phi = (~sel) .* phi_target + sel .* lso_cheese(dims);
+phi = lso_regularize(phi);
 dp = @(p) (p_target - p);
 err = @(p) norm(p_target(:) - p(:));
 
-for k = 1 : 155 
+for k = 1 : 5 
     % Plot topologies.
     subplot 121; lso_plot(phi); title('dynamic structure');
     subplot 122; lso_plot(phi_target); title('target structure');
