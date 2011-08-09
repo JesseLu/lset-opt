@@ -55,7 +55,7 @@ ind_i = ind + ((dir == 1) - (dir == 2)) + dims(1) * ((dir == 3) - (dir == 4));
 grad = abs(phi(ind) - phi(ind_i)); % Gradient.
 % dp_dphi = sparse(ind, ind, abs(phi(ind_i)) ./ grad.^2, N, N) + ...
 %     sparse(ind, ind_i, abs(phi(ind)) ./ grad.^2, N, N);
-dp_dphi = sparse(ind, ind, abs(phi(ind_i)) ./ grad.^2, N, N);
+dp_dphi = sparse(ind, ind, 1 ./ abs(grad), N, N);
 
 
     %

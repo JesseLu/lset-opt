@@ -14,7 +14,7 @@ function lso_test_update(max_isles)
 %     lso_test_update(100); % 100 islands nucleated per iteration.
 
 
-dims = randi(4, [1 2])+2; % Pick dimensions of initial grid.
+dims = randi(4, [1 2])+4; % Pick dimensions of initial grid.
 d = 4; % Interpolation factor, for larger characteristic feature size.
 
 % Build target structure.
@@ -29,16 +29,18 @@ sel = zeros(dims);
 sel(3:dims(1)-2, 3:dims(2)-2) = 1;
 
 % Setup the optimization.
-phi = (~sel) .* phi_target + sel;
+cheese = repmat([1 -1; -1 1], ceil(dims(1)/2), ceil(dims(2)/2));
+cheese = cheese(1:dims(1), 1:dims(2));
+phi = (~sel) .* phi_target + sel .* cheese;
 dp = @(p) (p_target - p);
 err = @(p) norm(p_target(:) - p(:));
 
-for k = 1 : 100 
+for k = 1 : 155 
     % Plot topologies.
     subplot 121; lso_plot(phi); title('dynamic structure');
     subplot 122; lso_plot(phi_target); title('target structure');
     axis equal tight;
-    pause(0.1)
+    pause
 
     % Update the structure.
     phi = lso_update(phi, dp(lso_fracfill(phi)), err, max_isles, ...
@@ -49,7 +51,7 @@ for k = 1 : 100
 %     axis equal tight;
 %     pause(0.1)
 
-    % phi = lso_quickreg(phi);
-    phi = lso_regularize(phi);
+    phi = lso_quickreg(phi);
+    % phi = lso_regularize(phi);
 end
 
